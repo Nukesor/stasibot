@@ -1,0 +1,14 @@
+# This is the service file for pueue
+# To enable the daemon type `systemctl --user enable pueue.service`
+# To start the daemon type `systemctl --user start pueue.service`
+
+[Unit]
+Description=Surveilance system and telegrom bot
+
+[Service]
+Restart=no
+ExecStart=/usr/bin/secucam
+ExecReload=/usr/bin/secucam
+
+[Install]
+WantedBy=default.target
