@@ -10,6 +10,9 @@ setup(
     url='http://github.com/nukesor/pueue',
     license='MIT',
     install_requires=[
+        'python-telegram-bot==5.2.0',
+        'gpiozero==1.3.1',
+        'picamera==1.12.0',
     ],
     classifiers=[
         'License :: OSI Approved :: MIT License',
