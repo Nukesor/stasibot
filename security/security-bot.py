@@ -1,7 +1,8 @@
 import picamera
 import telegram
-from gpiozero import MotionSensor
 from time import sleep
+from datetime import datetime, timedelta
+from gpiozero import MotionSensor
 
 TOKEN = 'asdfapoihawef'
 
@@ -13,8 +14,9 @@ class SecurityBot():
         self.last_movement = None
         self.sensor = MotionSensor(4)
         self.camera = picamera.PiCamera()
-        self.camera.resolution = (320, 240)
+        self.camera.resolution = (1920, 1080)
         self.camera.framerate = 24
+        self.recording = False
 
         self.telegram_bot = telegram.Bot(TOKEN)
 
@@ -47,12 +49,32 @@ class SecurityBot():
             if update:
                 update.message.reply_text('Valid commands are {}.'.format(commands))
 
+    def start_recording(self):
+        if not self.recording:
+            self.camera.start_recording('video.h264')
+            self.recording = True
+            return True
+        else:
+            return True
+
+    def stop_recording(self):
+        if self.recording:
+            self.camera.stop_recording()
+            self.recording = False
+            return True
+        else:
+            return False
+
     def main(self):
         while True:
             if self.sensor.motion_detected:
-                self.capture = True
+                self.last_movement = datetime.now()
                 print("Motion detected!")
+                self.start_recording()
 
-            self.check_telegram()
+            if self.recording:
+                delta = datetime.now() - self.last_movement
+                if delta > timedelta(minutes=1):
+                    self.stop_recording()
 
             sleep(1)
