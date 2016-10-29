@@ -1,22 +1,36 @@
+import os
+import time
 import picamera
 import telegram
-from time import sleep
-from datetime import datetime, timedelta
+import subprocess
 from gpiozero import MotionSensor
+from datetime import datetime, timedelta
 
 TOKEN = 'asdfapoihawef'
+TARGET_FOLDER = 'guest@jarvis:'
 
 
 class SecurityBot():
     def __init__(self):
+        # Status of the bot
         self.running = True
+
+        # Motion sensor for pi
+        self.sensor = MotionSensor(4)
         self.movement = False
         self.last_movement = None
-        self.sensor = MotionSensor(4)
+
+        # Camera initialization
         self.camera = picamera.PiCamera()
         self.camera.resolution = (1920, 1080)
         self.camera.framerate = 24
+
         self.recording = False
+        self.movie_path = None
+        self.movies_for_upload = []
+
+        # Uploader process for syncing videos to server
+        self.uploader = None
 
         self.telegram_bot = telegram.Bot(TOKEN)
 
@@ -50,8 +64,14 @@ class SecurityBot():
                 update.message.reply_text('Valid commands are {}.'.format(commands))
 
     def start_recording(self):
+        home = os.path.expanduser('~')
+        temporary_movie_folder = os.join(home, 'camvideos')
+        if not os.path.exists(temporary_movie_folder):
+            os.makedirs(temporary_movie_folder)
+        movie_name = time.strftime('secucam-%Y%m%d-%H%M')
+        self.movie_path = os.path.join(temporary_movie_folder, movie_name)
         if not self.recording:
-            self.camera.start_recording('video.h264')
+            self.camera.start_recording(self.movie_path)
             self.recording = True
             return True
         else:
@@ -61,20 +81,48 @@ class SecurityBot():
         if self.recording:
             self.camera.stop_recording()
             self.recording = False
+            self.movies_for_upload.append(self.movie_path)
+            self.movie_path = None
             return True
         else:
             return False
 
+    def upload_files(self):
+        """Upload files to a server with subprocesses."""
+
+        if self.uploader is not None:
+            self.uploader.poll()
+            if self.uploader.returncode is not None:
+                if self.uploader.returncode == 0:
+                    # Upload successful.
+                    self.movies_for_upload.remove(0)
+                    self.uploader = None
+                else:
+                    # Upload failed. Retrying
+                    self.uploader = None
+
+        # Start new uploader with next move
+        if self.uploader is None and len(self.movies_for_upload) > 0:
+            path = self.movies_for_upload[0]
+            command = 'rsync --partial {} {}'.format(path, TARGET_FOLDER)
+            self.uploader = subprocess.Popen(
+                command,
+                shell=True,
+            )
+
     def main(self):
         while True:
-            if self.sensor.motion_detected:
+            # Check for movement if the bot is active
+            if self.running and self.sensor.motion_detected:
+                # Remember the last movement
                 self.last_movement = datetime.now()
                 print("Motion detected!")
                 self.start_recording()
 
             if self.recording:
+                # Stop recording if last movement more than 1 min ago
                 delta = datetime.now() - self.last_movement
                 if delta > timedelta(minutes=1):
                     self.stop_recording()
 
-            sleep(1)
+            time.sleep(1)
