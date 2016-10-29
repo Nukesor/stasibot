@@ -5,7 +5,7 @@ import subprocess
 from collections import deque
 from gpiozero import MotionSensor
 from datetime import datetime, timedelta
-from ilswbot.config import TELEGRAM_API_KEY
+from security.config import TELEGRAM_API_KEY
 
 
 class SecurityBot():
