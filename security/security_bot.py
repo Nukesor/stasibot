@@ -1,5 +1,5 @@
 import os
-#import picamera
+import picamera
 import telegram
 import subprocess
 from collections import deque
@@ -20,14 +20,14 @@ class SecurityBot():
         self.user_id = 27755184
 
         # Motion sensor for pi
-#        self.sensor = MotionSensor(4)
+        self.sensor = MotionSensor(4)
         self.movement = False
         self.last_movement = None
 
         # Camera initialization
-#        self.camera = picamera.PiCamera()
-#        self.camera.resolution = (1920, 1080)
-#        self.camera.framerate = 24
+        self.camera = picamera.PiCamera()
+        self.camera.resolution = (1920, 1080)
+        self.camera.framerate = 24
 
         self.recording = False
         self.stop = False
@@ -126,8 +126,7 @@ class SecurityBot():
         self.movie_path = os.path.abspath(os.path.join(temporary_movie_folder, movie_name))
         if not self.recording:
             # Start recording
-            open(self.movie_path, 'a').close()
-            #self.camera.start_recording(self.movie_path)
+            self.camera.start_recording(self.movie_path)
             self.recording = True
             return True
         else:
@@ -136,7 +135,7 @@ class SecurityBot():
     def stop_recording(self):
         """Stop recording and mark file for upload."""
         if self.recording:
-            #self.camera.stop_recording()
+            self.camera.stop_recording()
             self.recording = False
             self.movies_for_upload.append(self.movie_path)
             self.movie_path = None
@@ -181,11 +180,11 @@ class SecurityBot():
     def main(self):
         while True:
             # Check for movement if the bot is active
-#            if self.running and self.sensor.motion_detected:
-#                # Remember the last movement
-#                self.last_movement = datetime.now()
-#                self.send_message('Motion detected: {}'.format(self.last_movement.strftime('%d.%m.%Y %H:%M')))
-#                self.start_recording()
+            if self.running and self.sensor.motion_detected:
+                # Remember the last movement
+                self.last_movement = datetime.now()
+                self.send_message('Motion detected: {}'.format(self.last_movement.strftime('%d.%m.%Y %H:%M')))
+                self.start_recording()
 
             if self.recording:
                 if self.record_for_minutes:
