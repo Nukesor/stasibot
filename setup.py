@@ -24,6 +24,6 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'secucam=secucam:main'
+            'secucam=security:main'
         ]
     })
