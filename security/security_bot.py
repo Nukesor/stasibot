@@ -30,6 +30,7 @@ class SecurityBot():
 #        self.camera.framerate = 24
 
         self.recording = False
+        self.stop = False
         self.movie_path = None
         self.movies_for_upload = deque()
         self.record_started = None
@@ -67,7 +68,7 @@ class SecurityBot():
 
     def process_command(self, command, update=None):
         """Interprets commands from telegram user messages."""
-        commands = ['start', 'stop', 'startrecording']
+        commands = ['start', 'stop', 'startrecording', 'stoprecording']
         basecommand = command.split(' ')[0]
         if basecommand in commands:
             if command == 'start':
@@ -82,20 +83,27 @@ class SecurityBot():
                 else:
                     self.running = False
                     update.message.reply_text('Bot stopped.')
+            elif command == 'stoprecording':
+                if self.recording:
+                    self.stop = True
+                else:
+                    update.message.reply_text('Bot not recording.')
             elif basecommand == 'startrecording':
                 splitted = command.split(' ')
                 if len(splitted) != 2:
                     update.message.reply_text("Failed. Structure of this command"
                                               " is 'startrecording int(minutes)'.")
                 else:
+                    minutes = None
                     try:
                         minutes = int(splitted[1])
                     except:
                         update.message.reply_text("Failed. First parameter needs to be an int")
-                    self.record_for_minutes = minutes
-                    self.record_started = datetime.now()
-                    self.start_recording()
-                    update.message.reply_text("Start recording for for {} minutes".format(minutes))
+                    if minutes:
+                        self.record_for_minutes = minutes
+                        self.start_recording()
+                        update.message.reply_text("Start recording for for {} minutes"
+                                                  .format(minutes))
 
         else:
             if update:
@@ -109,10 +117,11 @@ class SecurityBot():
         if not os.path.exists(temporary_movie_folder):
             os.makedirs(temporary_movie_folder)
 
+        self.record_started = datetime.now()
         # Get movie name with timestamp
         if self.last_movement:
             movie_name = self.last_movement.strftime('secucam-%Y%m%d-%H%M')
-        elif self.record_started:
+        else:
             movie_name = self.record_started.strftime('secucam-%Y%m%d-%H%M')
         self.movie_path = os.path.abspath(os.path.join(temporary_movie_folder, movie_name))
         if not self.recording:
@@ -150,7 +159,7 @@ class SecurityBot():
             if self.uploader.returncode is not None:
                 if self.uploader.returncode == 0:
                     # Upload successful.
-                    path = self.movies_for_upload.popleft(0)
+                    path = self.movies_for_upload.popleft()
                     self.send_message('Video file {} uploaded.'
                                       .format(os.path.basename(path)))
                     os.remove(path)
@@ -179,23 +188,26 @@ class SecurityBot():
 #                self.start_recording()
 
             if self.recording:
-                if self.record_for_minutes and self.record_started:
+                if self.record_for_minutes:
                     # Stop recording, after the specified amount of time.
                     delta = datetime.now() - self.record_started
                     limit = timedelta(minutes=self.record_for_minutes)
-                    if delta > limit:
+                    if delta > limit or self.stop:
                         self.stop_recording()
                         self.record_for_minutes = None
                         self.record_started = None
+                        self.stop = False
                         self.send_message('Movie finished')
 
                 elif self.last_movement:
                     # Stop recording if last movement was more than 1 min ago
                     delta = datetime.now() - self.last_movement
                     limit = timedelta(minutes=1)
-                    if delta > limit:
+                    if delta > limit or self.stop:
                         self.stop_recording()
                         self.last_movement = None
+                        self.record_started = None
+                        self.stop = False
                         self.send_message('Movement stopped')
 
             # Check for new telegram messages

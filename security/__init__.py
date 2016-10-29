@@ -10,4 +10,8 @@ def main():
     args = parser.parse_args()
 
     bot = SecurityBot(args)
-    bot.main()
+    try:
+        bot.main()
+    except KeyboardInterrupt:
+        print('KeyboardInterrupt. Stopping.')
+        pass
