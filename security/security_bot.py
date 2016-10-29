@@ -183,7 +183,8 @@ class SecurityBot():
             if self.running and self.sensor.motion_detected:
                 # Remember the last movement
                 self.last_movement = datetime.now()
-                self.send_message('Motion detected: {}'.format(self.last_movement.strftime('%d.%m.%Y %H:%M')))
+                self.send_message('Motion detected: {}'
+                                  .format(self.last_movement.strftime('%d.%m.%Y %H:%M')))
                 self.start_recording()
 
             if self.recording:
