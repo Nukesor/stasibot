@@ -2,6 +2,7 @@ import os
 #import picamera
 import telegram
 import subprocess
+from collections import deque
 from gpiozero import MotionSensor
 from datetime import datetime, timedelta
 from ilswbot.config import TELEGRAM_API_KEY
@@ -30,7 +31,7 @@ class SecurityBot():
 
         self.recording = False
         self.movie_path = None
-        self.movies_for_upload = []
+        self.movies_for_upload = deque()
         self.record_started = None
         self.record_for_minutes = None
 
@@ -149,10 +150,10 @@ class SecurityBot():
             if self.uploader.returncode is not None:
                 if self.uploader.returncode == 0:
                     # Upload successful.
+                    path = self.movies_for_upload.popleft(0)
                     self.send_message('Video file {} uploaded.'
-                                      .format(os.path.basename(self.movies_for_upload[0])))
-                    os.remove(self.movies_for_upload)
-                    self.movies_for_upload.remove(0)
+                                      .format(os.path.basename(path)))
+                    os.remove(path)
                     self.uploader = None
                 else:
                     self.send_message('Rsync upload failed.')
