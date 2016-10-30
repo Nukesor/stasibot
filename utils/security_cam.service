@@ -7,8 +7,8 @@ Description=Surveilance system and telegrom bot
 
 [Service]
 Restart=no
-ExecStart=/usr/bin/secucam
-ExecReload=/usr/bin/secucam
+ExecStart=/usr/bin/stasibot
+ExecReload=/usr/bin/stasibot
 
 [Install]
 WantedBy=default.target

@@ -5,7 +5,7 @@ from security.security_bot import SecurityBot
 
 def main():
     # Specifying commands
-    parser = argparse.ArgumentParser(description='secucam')
+    parser = argparse.ArgumentParser(description='stasibot')
 
     args = parser.parse_args()
 

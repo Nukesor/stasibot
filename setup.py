@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='secucam',
+    name='stasibot',
     author='Arne Beer',
     author_email='arne@twobeer.de',
     version='0.1.0',
@@ -24,6 +24,6 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'secucam=security:main'
+            'stasibot=security:main'
         ]
     })
