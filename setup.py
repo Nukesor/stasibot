@@ -7,7 +7,7 @@ setup(
     version='0.1.0',
     description='A nice setup for home surveillance.',
     keywords='surveillance security home server telegram bot',
-    url='http://github.com/nukesor/pueue',
+    url='http://github.com/nukesor/stasibot',
     license='MIT',
     install_requires=[
         'python-telegram-bot==5.2.0',
@@ -24,6 +24,6 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'stasibot=security:main'
+            'stasibot=stasibot:main'
         ]
     })
