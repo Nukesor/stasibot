@@ -11,7 +11,7 @@ def main():
 
     bot = SecurityBot(args)
     try:
-        bot.send_message('Bot started.')
+        bot.send_message('Bot started up.')
         bot.main()
     except KeyboardInterrupt:
         print('KeyboardInterrupt. Stopping.')

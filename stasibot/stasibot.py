@@ -120,9 +120,9 @@ class SecurityBot():
         self.record_started = datetime.now()
         # Get movie name with timestamp
         if self.last_movement:
-            movie_name = self.last_movement.strftime('stasibot-%Y%m%d-%H%M')
+            movie_name = self.last_movement.strftime('stasibot-%Y%m%d-%H%M.h264')
         else:
-            movie_name = self.record_started.strftime('stasibot-%Y%m%d-%H%M')
+            movie_name = self.record_started.strftime('stasibot-%Y%m%d-%H%M.h264')
         self.movie_path = os.path.abspath(os.path.join(temporary_movie_folder, movie_name))
         if not self.recording:
             # Start recording
