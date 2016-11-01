@@ -1,6 +1,6 @@
 #!/bin/env python3
 import argparse
-from stasibot.stasibot_bot import SecurityBot
+from stasibot.stasibot import SecurityBot
 
 
 def main():
