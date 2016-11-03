@@ -2,10 +2,18 @@ import os
 import picamera
 import telegram
 import subprocess
+import RPi.GPIO as gpio
 from collections import deque
-from gpiozero import MotionSensor
 from datetime import datetime, timedelta
-from stasibot.config import TELEGRAM_API_KEY
+from stasibot.config import (
+    CHANNEL,
+    NAME,
+    TARGET_FOLDER,
+    TEMP_FOLDER,
+    USERNAME,
+    USER_ID,
+    TELEGRAM_API_KEY,
+)
 
 
 class SecurityBot():
@@ -13,14 +21,17 @@ class SecurityBot():
         # Status of the bot
         self.running = True
         self.token = TELEGRAM_API_KEY
-        self.name = 'NSA677Bot'
-        self.target_folder = 'guest@jarvis:test'
-        self.temp_folder = 'camvideos'  # relative to home directory
-        self.user_name = 'Nukesor'
-        self.user_id = 27755184
+        self.name = NAME
+        self.target_folder = TARGET_FOLDER
+        self.temp_folder = TEMP_FOLDER
+        self.user_name = USERNAME
+        self.user_id = USER_ID
 
         # Motion sensor for pi
-        self.sensor = MotionSensor(4)
+        self.channel = CHANNEL
+        gpio.setmode(gpio.BOARD)
+        gpio.setup(self.channel, gpio.IN, pull_up_down=gpio.PUD_DOWN)
+        gpio.add_event_detect(self.channel, gpio.RISING)
         self.movement = False
         self.last_movement = None
 
@@ -180,7 +191,7 @@ class SecurityBot():
     def main(self):
         while True:
             # Check for movement if the bot is active
-            if self.running and self.sensor.motion_detected:
+            if self.running and gpio.event_detected(self.channel):
                 # Remember the last movement
                 self.last_movement = datetime.now()
                 self.send_message('Motion detected: {}'
