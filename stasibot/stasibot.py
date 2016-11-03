@@ -122,20 +122,20 @@ class SecurityBot():
 
     def start_recording(self):
         """Start recording to a new file."""
-        # Create directory for temporary video files
-        home = os.path.expanduser('~')
-        temporary_movie_folder = os.path.join(home, self.temp_folder)
-        if not os.path.exists(temporary_movie_folder):
-            os.makedirs(temporary_movie_folder)
-
-        self.record_started = datetime.now()
-        # Get movie name with timestamp
-        if self.last_movement:
-            movie_name = self.last_movement.strftime('stasibot-%Y%m%d-%H%M.h264')
-        else:
-            movie_name = self.record_started.strftime('stasibot-%Y%m%d-%H%M.h264')
-        self.movie_path = os.path.abspath(os.path.join(temporary_movie_folder, movie_name))
         if not self.recording:
+            # Create directory for temporary video files
+            home = os.path.expanduser('~')
+            temporary_movie_folder = os.path.join(home, self.temp_folder)
+            if not os.path.exists(temporary_movie_folder):
+                os.makedirs(temporary_movie_folder)
+
+            self.record_started = datetime.now()
+            # Get movie name with timestamp
+            if self.last_movement:
+                movie_name = self.last_movement.strftime('stasibot-%Y%m%d-%H%M.h264')
+            else:
+                movie_name = self.record_started.strftime('stasibot-%Y%m%d-%H%M.h264')
+            self.movie_path = os.path.abspath(os.path.join(temporary_movie_folder, movie_name))
             # Start recording
             self.camera.start_recording(self.movie_path)
             self.recording = True
