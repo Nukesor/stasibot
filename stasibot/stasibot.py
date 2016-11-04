@@ -79,6 +79,7 @@ class SecurityBot():
 
     def process_command(self, command, update=None):
         """Interprets commands from telegram user messages."""
+        command = command.lower()
         commands = ['start', 'stop', 'startrecording', 'stoprecording']
         basecommand = command.split(' ')[0]
         if basecommand in commands:
@@ -197,6 +198,11 @@ class SecurityBot():
                 self.send_message('Motion detected: {}'
                                   .format(self.last_movement.strftime('%d.%m.%Y %H:%M')))
                 self.start_recording()
+            elif not self.running:
+                # This resets the event_detected status for this channel
+                # Otherwise we instantly start recording after setting self.running = True
+                # if there has been any movement while self.running == False.
+                gpio.event_detected(self.channel)
 
             if self.recording:
                 if self.record_for_minutes:
