@@ -191,6 +191,9 @@ class SecurityBot():
 
     def main(self):
         while True:
+            # Check for new telegram messages
+            self.check_telegram()
+
             # Check for movement if the bot is active
             if self.running and gpio.event_detected(self.channel):
                 # Remember the last movement
@@ -226,9 +229,6 @@ class SecurityBot():
                         self.record_started = None
                         self.stop = False
                         self.send_message('Movement stopped')
-
-            # Check for new telegram messages
-            self.check_telegram()
 
             # Upload files, if there are any
             self.upload_files()
