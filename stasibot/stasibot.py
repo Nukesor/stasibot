@@ -34,6 +34,7 @@ class SecurityBot():
         gpio.add_event_detect(self.channel, gpio.RISING)
         self.movement = False
         self.last_movement = None
+        self.motion_amount = 0
 
         # Camera initialization
         self.camera = picamera.PiCamera()
@@ -197,10 +198,19 @@ class SecurityBot():
             # Check for movement if the bot is active
             if self.running and gpio.event_detected(self.channel):
                 # Remember the last movement
-                self.last_movement = datetime.now()
-                self.send_message('Motion detected: {}'
-                                  .format(self.last_movement.strftime('%d.%m.%Y %H:%M')))
-                self.start_recording()
+                now = datetime.now()
+                if self.last_movement and now - self.last_movement <= timedelta(minutes=1):
+                    self.motion_amount += 1
+                else:
+                    self.motion_amount = 1
+                self.last_movement = now
+                if self.motion_amount >= 2 and not self.recording:
+                    self.send_message('Motion detected: {}'
+                                      .format(self.last_movement.strftime('%d.%m.%Y %H:%M')))
+                    self.start_recording()
+                    self.motion_amount = 0
+                else:
+                    self.motion_amount = 0
             elif not self.running:
                 # This resets the event_detected status for this channel
                 # Otherwise we instantly start recording after setting self.running = True
