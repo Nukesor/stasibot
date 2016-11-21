@@ -128,7 +128,7 @@ class SecurityBot():
                     state = None
                     try:
                         state = int(splitted[1])
-                        if state != 0 or state != 1:
+                        if state != 0 and state != 1:
                             update.message.reply_text("Failed. Second parameter needs to be [0,1]'")
                         else:
                             self.upload = bool(state)
