@@ -22,7 +22,6 @@ class SecurityBot():
         self.running = True
         self.token = TELEGRAM_API_KEY
         self.name = NAME
-        self.target_folder = TARGET_FOLDER
         self.temp_folder = TEMP_FOLDER
         self.user_name = USERNAME
         self.user_id = USER_ID
@@ -49,7 +48,10 @@ class SecurityBot():
         self.record_for_minutes = None
 
         # Uploader process for syncing videos to server
+        self.upload = True
+        self.target_folder = TARGET_FOLDER
         self.uploader = None
+
 
         self.telegram_bot = telegram.Bot(self.token)
 
@@ -118,6 +120,21 @@ class SecurityBot():
                         update.message.reply_text("Start recording for for {} minutes"
                                                   .format(minutes))
 
+            elif basecommand == 'upload':
+                splitted = command.split(' ')
+                if len(splitted) != 2:
+                    update.message.reply_text("Failed. Structure of this command is 'upload [0,1]'")
+                else:
+                    state = None
+                    try:
+                        state = int(splitted[1])
+                        if state != 0 or state != 1:
+                            update.message.reply_text("Failed. Structure of this command is 'upload [0,1]'")
+                        else:
+                            self.upload = bool(state)
+                    except:
+                        update.message.reply_text("Failed. First parameter needs to be an int")
+
         else:
             if update:
                 update.message.reply_text('Valid commands are {}.'.format(commands))
@@ -181,14 +198,15 @@ class SecurityBot():
                     # Upload failed. Retrying
                     self.uploader = None
 
-        # Start new uploader with next move
-        if self.uploader is None and len(self.movies_for_upload) > 0:
-            path = self.movies_for_upload[0]
-            command = 'rsync --partial {} {}'.format(path, self.target_folder)
-            self.uploader = subprocess.Popen(
-                command,
-                shell=True,
-            )
+        if self.upload:
+            # Start new uploader with next move
+            if self.uploader is None and len(self.movies_for_upload) > 0:
+                path = self.movies_for_upload[0]
+                command = 'rsync --partial {} {}'.format(path, self.target_folder)
+                self.uploader = subprocess.Popen(
+                    command,
+                    shell=True,
+                )
 
     def main(self):
         while True:
