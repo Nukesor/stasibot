@@ -83,7 +83,7 @@ class SecurityBot():
     def process_command(self, command, update=None):
         """Interprets commands from telegram user messages."""
         command = command.lower()
-        commands = ['start', 'stop', 'startrecording', 'stoprecording']
+        commands = ['start', 'stop', 'startrecording', 'stoprecording', 'upload']
         basecommand = command.split(' ')[0]
         if basecommand in commands:
             if command == 'start':
