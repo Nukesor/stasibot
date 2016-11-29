@@ -64,7 +64,7 @@ class SecurityBot():
         """Checks telegram for new messages."""
         updates = self.telegram_bot.getUpdates(
             offset=self.telegram_update_id,
-            timeout=10
+            timeout=1
         )
 
         for update in updates:
