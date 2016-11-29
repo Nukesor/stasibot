@@ -227,7 +227,7 @@ class SecurityBot():
                                       .format(self.last_movement.strftime('%d.%m.%Y %H:%M')))
                     self.start_recording()
                     self.motion_amount = 0
-                else:
+                elif self.recording:
                     self.motion_amount = 0
             elif not self.running:
                 # This resets the event_detected status for this channel
