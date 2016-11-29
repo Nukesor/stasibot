@@ -34,6 +34,8 @@ class SecurityBot():
         self.movement = False
         self.last_movement = None
         self.motion_amount = 0
+        # Trigger once to get it initialized
+        gpio.event_detected(self.channel)
 
         # Camera initialization
         self.camera = picamera.PiCamera()
