@@ -54,7 +54,6 @@ class SecurityBot():
         self.target_folder = TARGET_FOLDER
         self.uploader = None
 
-
         self.telegram_bot = telegram.Bot(self.token)
 
         try:
@@ -213,7 +212,10 @@ class SecurityBot():
     def main(self):
         while True:
             # Check for new telegram messages
-            self.check_telegram()
+            try:
+                self.check_telegram()
+            except:
+                pass
 
             # Check for movement if the bot is active
             if self.running and gpio.event_detected(self.channel):
